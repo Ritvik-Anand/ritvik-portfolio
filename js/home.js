@@ -531,17 +531,23 @@
 
   function setupCaseOverlay(tiles, overlay, spin, sphere) {
     let openTile = null;
+    let lastCaseActionTime = 0;
 
     function openCase(tile, fromRect) {
       if (!tile) return;
       const targetTile = tiles.find((t) => t.node === tile.node || t.node === tile || t === tile) || tile;
 
+      const now = Date.now();
+      if (now - lastCaseActionTime < 400) return;
+
       if (openTile && (openTile === targetTile || openTile.node === targetTile.node)) {
+        lastCaseActionTime = now;
         closeCase();
         return;
       }
       if (openTile) closeCase(true);
 
+      lastCaseActionTime = now;
       const tileObj = targetTile;
       const rect = fromRect || tileObj.node.getBoundingClientRect();
       tileObj.openRect = rect;
@@ -592,6 +598,10 @@
 
     function closeCase(immediate) {
       if (!openTile) return;
+      const now = Date.now();
+      if (now - lastCaseActionTime < 400 && !immediate) return;
+      lastCaseActionTime = now;
+
       const tile = openTile;
       openTile = null;
       tile.selected = false;
