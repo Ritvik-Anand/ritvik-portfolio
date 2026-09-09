@@ -533,52 +533,56 @@
     let openTile = null;
 
     function openCase(tile, fromRect) {
-      if (openTile === tile) {
+      if (!tile) return;
+      const targetTile = tiles.find((t) => t.node === tile.node || t.node === tile || t === tile) || tile;
+
+      if (openTile && (openTile === targetTile || openTile.node === targetTile.node)) {
         closeCase();
         return;
       }
       if (openTile) closeCase(true);
 
-      const rect = fromRect || tile.node.getBoundingClientRect();
-      tile.openRect = rect;
+      const tileObj = targetTile;
+      const rect = fromRect || tileObj.node.getBoundingClientRect();
+      tileObj.openRect = rect;
 
-      openTile = tile;
-      tile.selected = true;
+      openTile = tileObj;
+      tileObj.selected = true;
       tiles.forEach((t) => {
-        if (t !== tile) t.node.classList.add("dim");
+        if (t !== tileObj) t.node.classList.add("dim");
       });
       spin.freeze();
 
-      document.body.appendChild(tile.node);
+      document.body.appendChild(tileObj.node);
 
-      tile.node.style.margin = "0";
-      tile.node.style.transform = "none";
-      tile.node.style.opacity = "1";
-      tile.node.style.position = "fixed";
-      tile.node.style.left = rect.left + "px";
-      tile.node.style.top = rect.top + "px";
-      tile.node.style.width = rect.width + "px";
-      tile.node.style.height = rect.height + "px";
-      tile.node.style.zIndex = "250";
-      tile.node.classList.add("selected");
+      tileObj.node.style.margin = "0";
+      tileObj.node.style.transform = "none";
+      tileObj.node.style.opacity = "1";
+      tileObj.node.style.position = "fixed";
+      tileObj.node.style.left = rect.left + "px";
+      tileObj.node.style.top = rect.top + "px";
+      tileObj.node.style.width = rect.width + "px";
+      tileObj.node.style.height = rect.height + "px";
+      tileObj.node.style.zIndex = "250";
+      tileObj.node.classList.add("selected");
 
-      void tile.node.offsetWidth;
+      void tileObj.node.offsetWidth;
 
       let targetH = Math.min(window.innerHeight * 0.70, 580);
-      let targetW = targetH * tile.ratio;
+      let targetW = targetH * tileObj.ratio;
       if (targetW > window.innerWidth * 0.88) {
         targetW = window.innerWidth * 0.88;
-        targetH = targetW / tile.ratio;
+        targetH = targetW / tileObj.ratio;
       }
       const left = (window.innerWidth - targetW) / 2;
       const top = (window.innerHeight - targetH) / 2;
 
-      tile.node.style.transition =
+      tileObj.node.style.transition =
         "left .5s var(--ease), top .5s var(--ease), width .5s var(--ease), height .5s var(--ease)";
-      tile.node.style.left = left + "px";
-      tile.node.style.top = top + "px";
-      tile.node.style.width = targetW + "px";
-      tile.node.style.height = targetH + "px";
+      tileObj.node.style.left = left + "px";
+      tileObj.node.style.top = top + "px";
+      tileObj.node.style.width = targetW + "px";
+      tileObj.node.style.height = targetH + "px";
 
       overlay.classList.add("open");
       if (typeof setCursorLabel === "function") {
