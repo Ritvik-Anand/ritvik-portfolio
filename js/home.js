@@ -121,6 +121,14 @@
     tag.textContent = "View Case";
     node.appendChild(tag);
 
+    node.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const tileObj = { node, data, index, ratio: data.ratio || 1.0 };
+      if (window.__homeOpenCase) {
+        window.__homeOpenCase(tileObj);
+      }
+    });
+
     return { node, data, index, ratio: data.ratio || 1.0 };
   }
 
@@ -211,11 +219,13 @@
     let isCapturing = false;
     let downTileNode = null;
 
+    let downTime = 0;
     stage.addEventListener("dragstart", (e) => e.preventDefault());
 
     stage.addEventListener("pointerdown", (e) => {
       state.dragging = true;
       state.moved = 0;
+      downTime = Date.now();
       downX = e.clientX;
       downY = e.clientY;
       state.lastX = e.clientX;
@@ -235,14 +245,17 @@
       const totalDist = Math.hypot(e.clientX - downX, e.clientY - downY);
       state.moved = totalDist;
 
-      if (totalDist > 6 && !isCapturing && pointerId != null) {
+      const isTouch = e.pointerType === "touch" || ("ontouchstart" in window);
+      const dragThreshold = isTouch ? 18 : 6;
+
+      if (totalDist > dragThreshold && !isCapturing && pointerId != null) {
         isCapturing = true;
         try { stage.setPointerCapture(pointerId); } catch (err) {}
         stage.classList.add("dragging");
       }
 
       const dist = Math.hypot(dx, dy);
-      if (dist > 0.01 && totalDist > 6) {
+      if (dist > 0.01 && totalDist > dragThreshold) {
         // Natural trackball: drag down -> front moves down, drag right -> front moves right
         const ax = -dy;
         const ay = dx;
@@ -257,6 +270,7 @@
     function endDrag(e) {
       if (!state.dragging) return;
       const totalMoved = state.moved;
+      const duration = Date.now() - downTime;
       state.dragging = false;
       stage.classList.remove("dragging");
       if (isCapturing && pointerId != null) {
@@ -265,11 +279,20 @@
       isCapturing = false;
       pointerId = null;
 
+      const isTouch = e && (e.pointerType === "touch" || ("ontouchstart" in window));
+      const maxMove = isTouch ? 28 : 12;
+
       // Tap / click detection on pointerup
-      if (totalMoved < 12 && e) {
+      if ((totalMoved < maxMove || duration < 300) && e) {
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+        if ((!clientX || !clientY) && e.changedTouches && e.changedTouches[0]) {
+          clientX = e.changedTouches[0].clientX;
+          clientY = e.changedTouches[0].clientY;
+        }
         let hitEl = e.target && e.target.closest ? e.target.closest(".tile") : null;
-        if (!hitEl && document.elementFromPoint) {
-          const ptEl = document.elementFromPoint(e.clientX, e.clientY);
+        if (!hitEl && document.elementFromPoint && clientX && clientY) {
+          const ptEl = document.elementFromPoint(clientX, clientY);
           if (ptEl) hitEl = ptEl.closest(".tile");
         }
         const targetNode = hitEl || downTileNode;
@@ -287,7 +310,9 @@
     stage.addEventListener(
       "click",
       (e) => {
-        if (state.moved > 8) {
+        const isTouch = e.pointerType === "touch" || ("ontouchstart" in window);
+        const maxMove = isTouch ? 28 : 8;
+        if (state.moved > maxMove) {
           e.stopPropagation();
           e.preventDefault();
         }

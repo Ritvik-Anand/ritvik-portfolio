@@ -414,7 +414,8 @@ function initMusicPlayer() {
     const iconPlay = btnPlay.querySelector(".icon-play");
     const iconPause = btnPlay.querySelector(".icon-pause");
 
-    pill.addEventListener("click", () => {
+    pill.addEventListener("click", (e) => {
+      e.stopPropagation();
       widget.classList.add("expanded");
       saveMusicState();
     });
@@ -422,6 +423,14 @@ function initMusicPlayer() {
       e.stopPropagation();
       widget.classList.remove("expanded");
       saveMusicState();
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (widget.classList.contains("expanded")) {
+        if (!widget.contains(e.target)) {
+          widget.classList.remove("expanded");
+          saveMusicState();
+        }
+      }
     });
 
     let currentIdx = Math.floor(Math.random() * PLAYLIST.length);

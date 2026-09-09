@@ -30,12 +30,14 @@
           )
           .join("");
 
+        const hintText = "Click a tool to see how it's used";
+
         toolsMarkup = `
           <div class="tools-wrapper">
             <div class="tools-grid">${pills}</div>
             <div class="tool-desc-box">
               <div class="desc-content">
-                <span class="hint">Hover over a tool to see how it's used</span>
+                <span class="hint">${hintText}</span>
               </div>
             </div>
           </div>
@@ -53,8 +55,10 @@
         const wrapper = div.querySelector(".tools-wrapper");
         const pills = div.querySelectorAll(".tool-pill");
         const descBox = div.querySelector(".desc-content");
+        let activeIdx = -1;
 
         function showTool(index) {
+          activeIdx = index;
           const tool = ch.tools[index];
           pills.forEach((p, i) => p.classList.toggle("active", i === index));
           descBox.style.opacity = "0";
@@ -73,11 +77,12 @@
         }
 
         function resetTool() {
+          activeIdx = -1;
           pills.forEach((p) => p.classList.remove("active"));
           descBox.style.opacity = "0";
           descBox.style.transform = "translateY(4px)";
           setTimeout(() => {
-            descBox.innerHTML = `<span class="hint">Hover over a tool to see how it's used</span>`;
+            descBox.innerHTML = `<span class="hint">Click a tool to see how it's used</span>`;
             descBox.style.opacity = "1";
             descBox.style.transform = "translateY(0)";
           }, 100);
@@ -85,11 +90,23 @@
 
         pills.forEach((pill) => {
           const idx = parseInt(pill.dataset.index, 10);
-          pill.addEventListener("pointerenter", () => showTool(idx));
+          pill.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (activeIdx === idx) {
+              resetTool();
+            } else {
+              showTool(idx);
+            }
+          });
+          pill.addEventListener("pointerenter", () => {
+            if (!("ontouchstart" in window)) showTool(idx);
+          });
           pill.addEventListener("focus", () => showTool(idx));
         });
 
-        wrapper.addEventListener("pointerleave", resetTool);
+        wrapper.addEventListener("pointerleave", () => {
+          if (!("ontouchstart" in window)) resetTool();
+        });
       }
     });
 

@@ -462,11 +462,78 @@ body.not-home .foot-index {
   width:100%; height:100%; object-fit:cover; display:block;
 }
 
-@media (max-width:700px){
-  .block-full.block-banner{ height:62vh; }
-  .block-pair{ grid-template-columns:1fr; gap:8px; height:auto; }
-  .block-pair .piece{ height:auto; }
-  .block-asymmetric{ grid-template-columns:1fr !important; }
+@media (max-width:768px){
+  .page {
+    padding: 44px 16px 32px !important;
+  }
+  .grid-heading {
+    margin-bottom: 16px !important;
+  }
+  .grid-heading h1 {
+    margin-bottom: 4px !important;
+    font-size: 24px !important;
+  }
+  .grid-heading p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+  .about-top {
+    padding-top: 44px !important;
+  }
+  .about-top .currently {
+    margin-top: 6px !important;
+  }
+  .chapters {
+    margin-top: 20px !important;
+    gap: 20px !important;
+  }
+  .chapter {
+    padding-top: 14px !important;
+    gap: 10px !important;
+  }
+  .chapter h3 {
+    margin-bottom: 2px !important;
+  }
+  .case-hero {
+    padding-top: 44px !important;
+    padding-bottom: 12px !important;
+  }
+  .case-hero .n {
+    margin-bottom: 2px !important;
+  }
+  .case-hero .d {
+    margin-top: 8px !important;
+  }
+
+  /* Uncropped 100% natural resolution image displays across all project blocks on mobile */
+  .block-full,
+  .block-full.block-banner,
+  .block-pair,
+  .block-pair .piece,
+  .block-asymmetric,
+  .block-asymmetric .main-piece,
+  .block-asymmetric .stacked-pieces,
+  .block-asymmetric .stacked-pieces .piece {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-template-columns: 1fr !important;
+  }
+  .block-full img,
+  .block-full video,
+  .block-full.block-banner img,
+  .block-full.block-banner video,
+  .block-pair .piece img,
+  .block-pair .piece video,
+  .block-asymmetric .main-piece img,
+  .block-asymmetric .main-piece video,
+  .block-asymmetric .stacked-pieces .piece img,
+  .block-asymmetric .stacked-pieces .piece video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
+  }
 }
 
 .case-end{ text-align:center; padding:64px 0 40px; }
